@@ -1,7 +1,31 @@
 #include "SessionManagement.h"
 #include "NetworkManager.h"
 
-void SessionClientImpl::OnSessionState(cricket::Call* call,
+
+//////////////////////////
+
+SessionManagement::SessionManagement() :
+    m_signaling_protocol(cricket::PROTOCOL_HYBRID),
+    m_transport_protocol(cricket::ICEPROTO_HYBRID),
+    m_data_engine(NULL),
+    m_media_engine(NULL)
+    //m_session_client(NULL)
+{
+}
+SessionManagement::~SessionManagement()
+{
+    delete m_session_manager;
+    delete m_port_allocator;
+    delete m_session_manager_task;
+    //delete m_jingle_info_task;
+    m_worker->Stop();
+    delete m_worker;
+    delete m_media_engine;
+    delete m_data_engine;
+    delete m_media_client;
+    //delete m_session_client;
+}
+void SessionManagement::OnSessionState(cricket::Call* call,
                                        cricket::Session* session,
                                        cricket::Session::State state)
 {
@@ -9,7 +33,7 @@ void SessionClientImpl::OnSessionState(cricket::Call* call,
   std::cout << "OnSessionState: " << state << std::endl;
 
 }
-void SessionClientImpl::OnMediaStreamsUpdate(cricket::Call* call,
+void SessionManagement::OnMediaStreamsUpdate(cricket::Call* call,
                                              cricket::Session* session,
                                              const cricket::MediaStreams& added,
                                              const cricket::MediaStreams& removed)
@@ -18,18 +42,8 @@ void SessionClientImpl::OnMediaStreamsUpdate(cricket::Call* call,
   std::cout << "OnMediaStreamsUpdate" << std::endl;
 
 }
-/*Your implementation should determine whether the session represents an incoming or an outgoing
-    connection request. If this is incoming, received_initiate will be True, and your application
-    should connect to the Session's signals and perform any other session-specific tasks, such as
-    adding it to a list of active sessions and instantiating helper objects or resources.*/
-void SessionClientImpl::OnSessionCreate(cricket::Session *session, bool received_initiate)
-{
-    if (received_initiate) {
 
-    }
-    std::cout << "New session created!" << std::endl;
-}
-void SessionClientImpl::OnSessionDestroy(cricket::Session* session)
+void SessionManagement::OnSessionDestroy(cricket::Session* session)
 {
     std::cout << "OnSessionDestroy!" << std::endl;
 
@@ -46,7 +60,7 @@ void SessionClientImpl::OnSessionDestroy(cricket::Session* session)
     */
 }
 
-bool SessionClientImpl::ParseContent(cricket::SignalingProtocol protocol,
+bool SessionManagement::ParseContent(cricket::SignalingProtocol protocol,
                           const buzz::XmlElement* elem,
                           cricket::ContentDescription** content,
                           cricket::ParseError* error)
@@ -56,7 +70,7 @@ bool SessionClientImpl::ParseContent(cricket::SignalingProtocol protocol,
 
     return true;
 }
-bool SessionClientImpl::WriteContent(cricket::SignalingProtocol protocol,
+bool SessionManagement::WriteContent(cricket::SignalingProtocol protocol,
                           const cricket::ContentDescription* content,
                           buzz::XmlElement** elem,
                           cricket::WriteError* error)
@@ -67,29 +81,6 @@ bool SessionClientImpl::WriteContent(cricket::SignalingProtocol protocol,
     return true;
 }
 
-//////////////////////////
-
-SessionManagement::SessionManagement() :
-    m_signaling_protocol(cricket::PROTOCOL_HYBRID),
-    m_transport_protocol(cricket::ICEPROTO_HYBRID),
-    m_data_engine(NULL),
-    m_media_engine(NULL),
-    m_session_client(NULL)
-{
-}
-SessionManagement::~SessionManagement()
-{
-    delete m_session_manager;
-    delete m_port_allocator;
-    delete m_session_manager_task;
-    //delete m_jingle_info_task;
-    m_worker->Stop();
-    delete m_worker;
-    delete m_media_engine;
-    delete m_data_engine;
-    delete m_media_client;
-    delete m_session_client;
-}
 
 void SessionManagement::Init(buzz::XmppClient* xmpp_client)
 {
@@ -115,8 +106,9 @@ void SessionManagement::Init(buzz::XmppClient* xmpp_client)
     m_jingle_info_task->SignalJingleInfo.connect(this, &SessionManagement::OnJingleInfo);
     m_jingle_info_task->Start();*/
 
-    m_session_client = new SessionClientImpl;
-    m_session_manager->AddClient(cricket::NS_GINGLE_RAW, m_session_client);
+    // TODO Do we need the SessionClientImpl ????
+    //m_session_client = new SessionClientImpl;
+    //m_session_manager->AddClient(cricket::NS_GINGLE_RAW, m_session_client);
 
     if (!m_media_engine) {
       m_media_engine = cricket::MediaEngineFactory::Create();
@@ -147,8 +139,11 @@ void SessionManagement::OnSessionCreate(cricket::Session* session, bool initiate
 void SessionManagement::OnCallCreate(cricket::Call* call)
 {
     std::cerr << "SESSION CREATE" << std::endl;
-    call->SignalSessionState.connect(m_session_client, &SessionClientImpl::OnSessionState);
-    call->SignalMediaStreamsUpdate.connect(m_session_client, &SessionClientImpl::OnMediaStreamsUpdate);
+
+    //TODO
+
+    call->SignalSessionState.connect(this, &SessionManagement::OnSessionState);
+    call->SignalMediaStreamsUpdate.connect(this, &SessionManagement::OnMediaStreamsUpdate);
 }
 void SessionManagement::OnCallDestroy(cricket::Call* call)
 {

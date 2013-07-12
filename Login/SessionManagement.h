@@ -11,6 +11,7 @@
 #include <talk/p2p/base/sessionclient.h>
 #include "sessionmanagertask.h"
 
+/*
 class SessionClientImpl : public cricket::SessionClient, public sigslot::has_slots<>
 {
 public:
@@ -42,9 +43,9 @@ public:
     void OnSessionState(cricket::Call* call,
                         cricket::Session* session,
                         cricket::Session::State state);
-};
+};*/
 
-class SessionManagement : public sigslot::has_slots<> {
+class SessionManagement : public cricket::SessionClient, public sigslot::has_slots<> {
 public:
     SessionManagement();
     ~SessionManagement();
@@ -53,6 +54,24 @@ public:
 
     void OnRequestSignaling();
     void OnSessionCreate(cricket::Session* session, bool initiate);
+    void OnSessionDestroy(cricket::Session* session);
+    bool ParseContent(cricket::SignalingProtocol protocol,
+                              const buzz::XmlElement* elem,
+                              cricket::ContentDescription** content,
+                              cricket::ParseError* error);
+    bool WriteContent(cricket::SignalingProtocol protocol,
+                              const cricket::ContentDescription* content,
+                              buzz::XmlElement** elem,
+                              cricket::WriteError* error);
+
+    void OnSessionState(cricket::Call* call,
+                        cricket::Session* session,
+                        cricket::Session::State state);
+    void OnMediaStreamsUpdate(cricket::Call* call,
+                              cricket::Session* session,
+                              const cricket::MediaStreams& added,
+                              const cricket::MediaStreams& removed);
+
     void OnCallCreate(cricket::Call* call);
     void OnCallDestroy(cricket::Call* call);
     void OnDevicesChange();
@@ -77,6 +96,6 @@ private:
     cricket::DataEngineInterface* m_data_engine;
     cricket::MediaEngineInterface* m_media_engine;
     cricket::MediaSessionClient* m_media_client;
-    SessionClientImpl* m_session_client;
+    //SessionClientImpl* m_session_client;
 
 };

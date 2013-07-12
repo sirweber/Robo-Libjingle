@@ -49,8 +49,8 @@ void Presence::OnStatusUpdate(const buzz::PresenceStatus& status) {
 
             cricket::CallOptions opt;
             opt.has_data = true;
-            opt.has_audio = false;
-            opt.has_video = false;
+            opt.has_audio = true;
+            opt.has_video = true;
             cricket::Session* session = call->InitiateSession(status.jid(), buzz::Jid(m_Client->user(), m_Client->host(), m_Client->resource()), opt);
 
             if (!call || !session) {
@@ -80,9 +80,10 @@ void Presence::OnStatusUpdate(const buzz::PresenceStatus& status) {
             cricket::SendDataParams params;
             talk_base::Buffer payload("text", 5);
             cricket::SendDataResult result;
+            std::cout << "====> SENDING DATA ON THE CALL OJBECT" << std::endl;
             bool sent = call->SendData(session, params, payload, &result);
 
-            std::cout << sent << std::endl;
+            std::cout << "====> DATA BYTES SENT: " << sent << std::endl;
         }
   }
   else
