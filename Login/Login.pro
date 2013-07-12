@@ -16,7 +16,7 @@ HEADERS += \
     sessionmanagertask.h \
     presencepushtask.h
 
-INCLUDEPATH += ../libjingle
+INCLUDEPATH += $$_PRO_FILE_PWD_/../../libjingle
 
 QMAKE_CXXFLAGS += -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include \
         -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include \
@@ -28,18 +28,13 @@ QMAKE_CXXFLAGS += -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/g
         --param=ssp-buffer-size=4 \
         -Werror \
         -pthread \
-        #-fno-exceptions \
         -fno-strict-aliasing \
         -Wall \
         -Wno-unused-parameter \
-        #-Wno-missing-field-initializers \
-        #-fvisibility=hidden \
-        #-pipe \
         -fPIC \
         -Wextra \
         -O0 \
         -g -ggdb \
-        #-fno-ident \
         #-fdata-sections \
         #-ffunction-sections \
         '-DWEBRTC_SVNREVISION="Unavailable(issue687)"' \
@@ -94,23 +89,23 @@ QMAKE_LFLAGS +=  \
         -Wl,--gc-sections
 
 LIBS += -Wl,-Bstatic -Wl,-start-group \
-            -L../libjingle/out/Debug/obj.target/talk \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/talk \
             -ljingle_media \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/voice_engine -lvoice_engine_core \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/voice_engine -lvoice_engine_core \
             -ljingle_peerconnection -ljingle_p2p  -ljingle_sound -ljingle -ljingle_xmpphelp  \
-            -L../libjingle/out/Debug/obj.target/third_party/libyuv -lyuv \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/modules -lwebrtc_utility \
-            -L../libjingle/out/Debug/obj.target/third_party/opus -lopus \
-            -L../libjingle/out/Debug/obj.target/third_party/libsrtp -lsrtp \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/common_audio -lresampler \
-            -L../libjingle/out/Debug/obj.target/third_party/jsoncpp -ljsoncpp \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/common_audio -lvad -lsignal_processing \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/common_video -lcommon_video \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/modules/video_coding/codecs/vp8 -lwebrtc_vp8 \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/modules/video_coding/utility -lvideo_coding_utility \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/video_engine -lvideo_engine_core \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/system_wrappers/source -lsystem_wrappers \
-            -L../libjingle/out/Debug/obj.target/third_party/webrtc/modules -laudio_processing \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/libyuv -lyuv \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/modules -lwebrtc_utility \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/opus -lopus \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/libsrtp -lsrtp \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/common_audio -lresampler \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/jsoncpp -ljsoncpp \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/common_audio -lvad -lsignal_processing \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/common_video -lcommon_video \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/modules/video_coding/codecs/vp8 -lwebrtc_vp8 \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/modules/video_coding/utility -lvideo_coding_utility \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/video_engine -lvideo_engine_core \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/system_wrappers/source -lsystem_wrappers \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/webrtc/modules -laudio_processing \
             -lvideo_processing_sse2 \
             -laudio_processing_sse2 \
             -lwebrtc_video_coding \
@@ -136,10 +131,10 @@ LIBS += -Wl,-Bstatic -Wl,-start-group \
             -lvideo_processing \
             -lrtp_rtcp \
             -lpaced_sender \
-            -L../libjingle/out/Debug/obj.target/third_party/libvpx -lvpx -lvpx_intrinsics_sse2 -lvpx_intrinsics_ssse3 \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/libvpx -lvpx -lvpx_intrinsics_sse2 -lvpx_intrinsics_ssse3 \
             -lvpx_intrinsics_mmx -lvpx_asm_offsets_vp8 \
-            -L../libjingle/out/Debug/obj.target/third_party/protobuf -lprotobuf_lite \
-            -L../libjingle/out/Debug/obj.target/third_party/libjpeg_turbo -ljpeg_turbo \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/protobuf -lprotobuf_lite \
+            -L$$_PRO_FILE_PWD_/../../libjingle/out/Debug/obj.target/third_party/libjpeg_turbo -ljpeg_turbo \
         -Wl,--end-group -Wl,-Bdynamic \
         \
         -lgthread-2.0 -lrt -latk-1.0 -lgio-2.0 -lpangoft2-1.0 \
