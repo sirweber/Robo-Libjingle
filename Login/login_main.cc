@@ -72,7 +72,7 @@ public:
 
       // TODO Server change
       //xcs.set_server(talk_base::SocketAddress("liteart.dyndns.org", 5222));
-      m_xcs.set_server(talk_base::SocketAddress("localhost", 5222));
+      m_xcs.set_server(talk_base::SocketAddress("neurobot.com", 5222));
 
       talk_base::Thread* main_thread = talk_base::Thread::Current();
 
