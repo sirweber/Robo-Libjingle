@@ -1,7 +1,7 @@
 var BOSH_SERVICE = '/http-bind',
     DOMAIN = window.location.hostname;
     CONFERENCEDOMAIN = 'conference.' + DOMAIN,
-    ice_config = {iceServers: [{url: 'stun:localhost:5280'}]}, 
+    ice_config = {iceServers: [{url: 'stun:neurobot.com:5280'}]}, 
     RTC = null,
     RTCPeerConnection = null,
     AUTOACCEPT = true,
@@ -10,7 +10,6 @@ var BOSH_SERVICE = '/http-bind',
     MULTIPARTY = true,
     localStream = null,
     connection = null,
-    myroomjid = null,
     roomjid = null,
     list_members = [];
 
@@ -53,99 +52,39 @@ function onConnected(event) {
 }
 
 function doJoin() {
-    var roomnode = null, 
-        pres;
-    if (location.hash.length > 1) {
-        roomnode = location.hash.substr(1).toLowerCase();
-        if (roomnode.indexOf('/') != -1) {
-            setStatus('invalid location, must not contain "/"');
-            connection.disconnect();
-            return;
-        }
-        if (roomnode.indexOf('@') != -1) { // allow #room@host
-            roomjid = roomnode;
-        }
-    } else {
-        roomnode = Math.random().toString(36).substr(2, 8);
-        location.hash = roomnode;
-    }
-    if (roomjid == null) {
-        roomjid = roomnode + '@' + CONFERENCEDOMAIN;
-    }
-    setStatus('Joining ' + location.hash);
-    myroomjid = roomjid + '/' + Strophe.getNodeFromJid(connection.jid);
     list_members = new Array();
     console.log('joining', roomjid);
 
-    // muc stuff
-    connection.addHandler(onPresence, null, 'presence', null, null, roomjid, {matchBare: true});
-    connection.addHandler(onPresenceUnavailable, null, 'presence', 'unavailable', null, roomjid, {matchBare: true});
-    connection.addHandler(onPresenceError, null, 'presence', 'error', null, roomjid, {matchBare: true});
-
-    pres = $pres({to: myroomjid })
-            .c('x', {xmlns: 'http://jabber.org/protocol/muc'});
-    connection.send(pres);
+    var iq = $iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
+    connection.sendIQ(iq, roster_callback_function);
 }
+
+// This is supposed to be called on startup and give me my roster's contacts
+function roster_callback_function(iq) {
+  $(iq).find('item').each(function(){
+    var jid = $(this).attr('jid');
+    console.log('User online: ', jid);
+
+    if (Strophe.getNodeFromJid(jid) == "asmo")
+      connection.jingle.initiate(jid, connection.jid);
+  });
+  connection.addHandler(on_presence, null, "presence");
+  connection.send($pres());
+}
+
+// This function will be called when the presence of a user changes
+function on_presence(presence) {
+  var presence_type = $(presence).attr('type'); // unavailable, subscribed, etc...
+  var from = $(presence).attr('from'); // the jabber_id of the contact
+
+  console.log('== STATUS ==', from, 'is now', presence_type);
+}
+
 
 function onHashChange() {
     setStatus('hashChange: ' + window.location.hash);
     if (Object.keys(connection.jingle.sessions).length == 0) {
         window.location.reload();
-    }
-}
-
-function onPresence(pres) {
-    var from = pres.getAttribute('from'),
-        type = pres.getAttribute('type');
-    if (type != null) {
-        return true;
-    }
-    if ($(pres).find('>x[xmlns="http://jabber.org/protocol/muc#user"]>status[code="201"]').length) {
-        // http://xmpp.org/extensions/xep-0045.html#createroom-instant
-        var create = $iq({type: 'set', to:roomjid})
-                .c('query', {xmlns: 'http://jabber.org/protocol/muc#owner'})
-                .c('x', {xmlns: 'jabber:x:data', type: 'submit'});
-        connection.send(create); // fire away
-    }
-    if (from == myroomjid) {
-        onJoinComplete();
-    } else { // TODO: prevent duplicates
-        list_members.push(from);
-    }
-    return true;
-}
-
-function onPresenceUnavailable(pres) {
-    connection.jingle.terminateByJid($(pres).attr('from'));
-    if (Object.keys(connection.jingle.sessions).length == 0) {
-        setStatus('everyone left');
-    }
-    for (var i = 0; i < list_members.length; i++) {
-        if (list_members[i] == $(pres).attr('from')) {
-            list_members.splice(i, 1);
-            break;
-        }
-    }
-    return true;
-}
-
-function onPresenceError(pres) {
-    setStatus('onPresError ' + pres);
-    return true;
-}
-
-function onJoinComplete() {
-    setStatus('onJoinComplete');
-    if (list_members.length < 1) {
-        setStatus('waiting for peer');
-        return;
-    }
-
-    setStatus('initiating call');
-    var i, sess, num;
-    num = MULTIPARTY ? list_members.length : 1;
-    for (i = 0; i < num; i++) {
-        connection.jingle.initiate(list_members[i], myroomjid);
     }
 }
 
@@ -319,7 +258,7 @@ $(window).bind('beforeunload', function() {
 $(document).ready(function() {
     RTC = setupRTC();
     //connection = new Strophe.Connection(BOSH_SERVICE);
-    connection = new Strophe.Connection("http://localhost:5280/http-bind");
+    connection = new Strophe.Connection("http://neurobot.com:5280/http-bind");
     if (RAWLOGGING) {
         connection.rawInput = function(data) { console.log('RECV: ' + data); };
         connection.rawOutput = function(data) { console.log('SEND: ' + data); };

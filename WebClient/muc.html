@@ -28,15 +28,6 @@ $(document).ready(function() {
         }
         return false;
     });
-    $('#docall').submit(function () {
-        var peer = $('#peerjid').get(0).value;
-        $('#docall>input').attr('disabled', 'disabled');
-        setStatus('calling ' + peer);
-        // TODO: one should check that this is a full jid
-        connection.send($pres({to:peer})); // sharing directed presence is a good idea
-        connection.jingle.initiate(peer, connection.jid);
-        return false;
-    });
 });
 
 function doConnect() {
@@ -78,7 +69,7 @@ body {background-color:#9ce9fe}
     <div id='login'>
       <form id='credentials'>
         <label for='jid'>JID:</label>
-        <input type='text' id='jid' placeholder='leave blank for'>
+        <input type='text' id='jid' value='blyth@neurobot.com'>
         <label for='pass'>Password:</label>
         <input type='password' id='pass' placeholder='anonymous login'>
         <input type='submit' id='connect' value='get camera and connect'>
