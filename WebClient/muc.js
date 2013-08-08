@@ -1,8 +1,10 @@
 var BOSH_SERVICE = '/http-bind',
     DOMAIN = window.location.hostname;
     CONFERENCEDOMAIN = 'conference.' + DOMAIN,
-    ice_config = {iceServers: [{url: 'stun:neurobot.com:5280'}]},
-    // = {iceServers: [{url: 'stun:stun.l.google.com:19302'}]},  
+    ice_config = {"iceServers": [{"url": "stun:stun.neurobot.com"}]};
+
+    //{iceServers: [{url: 'stun:stun.l.google.com:19302'}, {url: 'turn:neurobot.com:3478'}]},
+    //ice_config = {iceServers: [{url: 'stun:stun.l.google.com:19302'}]},  
     RTC = null,
     RTCPeerConnection = null,
     AUTOACCEPT = true,
@@ -34,7 +36,6 @@ function onConnect(status) {
         }
     } else if (status == Strophe.Status.CONNECTED) {
         setStatus('Connected.');
-        connection.jingle.getStunAndTurnCredentials();
 
         // disco stuff
         if (connection.disco) {
@@ -54,7 +55,6 @@ function onConnected(event) {
 
 function doJoin() {
     list_members = new Array();
-    console.log('joining', roomjid);
 
     var iq = $iq({type: 'get'}).c('query', {xmlns: 'jabber:iq:roster'});
     connection.sendIQ(iq, roster_callback_function);
@@ -68,19 +68,25 @@ function roster_callback_function(iq)
 
   $(iq).find('item').each(function(){
     var jid = $(this).attr('jid');
-    console.log('User online: ', jid);
-
-    if (Strophe.getNodeFromJid(jid) == "asmo")
-      connection.jingle.initiate(jid, connection.jid);
+    console.log('User found: ', jid);
   });
+
+  return true;
 }
 
 // This function will be called when the presence of a user changes
 function on_presence(presence) {
-  var presence_type = $(presence).attr('type'); // unavailable, subscribed, etc...
   var from = $(presence).attr('from'); // the jabber_id of the contact
+  var status = $(presence).find("show");
 
-  console.log('== STATUS ==', from, 'is now', presence_type);
+  console.log('== STATUS ==', from);
+
+  // TODO: Now dummily connecting to user called "asmo"
+  if (Strophe.getNodeFromJid(from) != Strophe.getNodeFromJid(connection.jid) && Strophe.getNodeFromJid(from) == "asmo") {
+    connection.jingle.initiate(from, connection.jid);
+    return false;   // means do not invoke this callback again (since we made a call)
+  }
+  return true;  // means the callback will be invoked again for other presences
 }
 
 
