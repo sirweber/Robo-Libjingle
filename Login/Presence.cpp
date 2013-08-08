@@ -21,6 +21,7 @@ void Presence::Init(buzz::XmppClient* xmpp_client, SessionManagement* session, b
 
     // Hook up to the notification signal sent when the stanza is received.
     m_pushTask->SignalStatusUpdate.connect(this, &Presence::OnStatusUpdate);
+
     // Start listening for presence stanzas.
     m_pushTask->Start();
 
@@ -39,9 +40,7 @@ void Presence::OnStatusUpdate(const buzz::PresenceStatus& status) {
   if (status.available())
   {
         std::cout << status.jid().node() << " is available and ready to chat." << std::endl;
-
-        //if (status.jid().node() != m_Client->user())
-        if (m_Client->user() == "asmo")
+        /*if (m_Client->user() == "asmo")
         {
             // TODO Make connection
             cricket::Call* call = m_Session->GetClient()->CreateCall();
@@ -84,7 +83,7 @@ void Presence::OnStatusUpdate(const buzz::PresenceStatus& status) {
             bool sent = call->SendData(session, params, payload, &result);
 
             std::cout << "====> DATA BYTES SENT: " << sent << std::endl;
-        }
+        }*/
   }
   else
   {

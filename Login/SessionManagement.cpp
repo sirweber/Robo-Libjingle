@@ -91,8 +91,8 @@ void SessionManagement::Init(buzz::XmppClient* xmpp_client)
     // TODO also takes relay- and stun-server info in the ctor. not for now.
     m_port_allocator = new cricket::BasicPortAllocator(&network_manager);
     m_session_manager = new cricket::SessionManager(m_port_allocator, m_worker);
-    //m_session_manager->SignalRequestSignaling.connect(this, &SessionManagement::OnRequestSignaling);
-    //m_session_manager->SignalSessionCreate.connect(this, &SessionManagement::OnSessionCreate);
+    m_session_manager->SignalRequestSignaling.connect(this, &SessionManagement::OnRequestSignaling);
+    m_session_manager->SignalSessionCreate.connect(this, &SessionManagement::OnSessionCreate);
     m_session_manager->OnSignalingReady();
 
     m_session_manager_task = new cricket::SessionManagerTask(xmpp_client, m_session_manager);

@@ -22,6 +22,7 @@ private:
     // Status callbacks
     void OnStatusUpdate(const buzz::PresenceStatus& status);
 
+
     PresencePushTask* m_pushTask;
     buzz::PresenceStatus m_Status;
     buzz::PresenceOutTask* m_Presence_out;
