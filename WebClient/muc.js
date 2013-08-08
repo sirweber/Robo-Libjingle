@@ -1,7 +1,8 @@
 var BOSH_SERVICE = '/http-bind',
     DOMAIN = window.location.hostname;
     CONFERENCEDOMAIN = 'conference.' + DOMAIN,
-    ice_config = {iceServers: [{url: 'stun:neurobot.com:5280'}]}, 
+    ice_config = {iceServers: [{url: 'stun:neurobot.com:5280'}]},
+    // = {iceServers: [{url: 'stun:stun.l.google.com:19302'}]},  
     RTC = null,
     RTCPeerConnection = null,
     AUTOACCEPT = true,
@@ -60,7 +61,11 @@ function doJoin() {
 }
 
 // This is supposed to be called on startup and give me my roster's contacts
-function roster_callback_function(iq) {
+function roster_callback_function(iq) 
+{
+  connection.addHandler(on_presence, null, "presence");
+  connection.send($pres());
+
   $(iq).find('item').each(function(){
     var jid = $(this).attr('jid');
     console.log('User online: ', jid);
@@ -68,8 +73,6 @@ function roster_callback_function(iq) {
     if (Strophe.getNodeFromJid(jid) == "asmo")
       connection.jingle.initiate(jid, connection.jid);
   });
-  connection.addHandler(on_presence, null, "presence");
-  connection.send($pres());
 }
 
 // This function will be called when the presence of a user changes
